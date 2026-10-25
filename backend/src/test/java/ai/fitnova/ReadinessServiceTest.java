@@ -1,0 +1,4 @@
+package ai.fitnova;
+import ai.fitnova.api.ApiDtos.ReadinessRequest; import ai.fitnova.repo.ReadinessRepository; import ai.fitnova.service.ReadinessService; import org.junit.jupiter.api.Test; import java.math.BigDecimal; import static org.assertj.core.api.Assertions.assertThat; import static org.mockito.Mockito.mock;
+class ReadinessServiceTest {private final ReadinessService service=new ReadinessService(mock(ReadinessRepository.class));
+ @Test void scoreIsDeterministicAndBounded(){var strong=new ReadinessRequest(new BigDecimal("12"),5,5,1,5,1,60,"",null,null);var weak=new ReadinessRequest(BigDecimal.ZERO,1,1,5,1,5,20,"",null,null);assertThat(service.calculate(strong)).isBetween(0,100);assertThat(service.calculate(weak)).isBetween(0,100);assertThat(service.calculate(strong)).isGreaterThan(service.calculate(weak));}}

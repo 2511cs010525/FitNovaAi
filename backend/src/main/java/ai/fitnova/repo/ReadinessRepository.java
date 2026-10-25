@@ -1,0 +1,1 @@
+package ai.fitnova.repo; import ai.fitnova.domain.ReadinessEntry; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface ReadinessRepository extends JpaRepository<ReadinessEntry,Long>{Optional<ReadinessEntry> findFirstByUserIdOrderByEntryDateDescIdDesc(Long id); List<ReadinessEntry> findTop30ByUserIdOrderByEntryDateDescIdDesc(Long id);}

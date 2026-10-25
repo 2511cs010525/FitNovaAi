@@ -1,0 +1,15 @@
+.git
+.github
+.next
+.vinext
+.wrangler
+dist
+node_modules
+backend/target
+.tools
+.env
+.env.*
+!.env.example
+*.log
+*.zip
+FitNovaAi-website

@@ -1,0 +1,1 @@
+package ai.fitnova.api; import ai.fitnova.domain.User; import org.springframework.security.core.Authentication; public final class ApiSupport {private ApiSupport(){} public static User user(Authentication auth){if(auth==null||!(auth.getPrincipal() instanceof User u))throw new IllegalStateException("Authentication required");return u;}}

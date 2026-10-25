@@ -1,0 +1,4 @@
+package ai.fitnova.domain;
+import jakarta.persistence.*; import lombok.*; import java.time.LocalDate; import java.math.BigDecimal;
+@Entity @Table(name="readiness_entries") @Getter @Setter @NoArgsConstructor
+public class ReadinessEntry { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @ManyToOne(optional=false) @JoinColumn(name="user_id") private User user; @Column(name="entry_date") private LocalDate entryDate=LocalDate.now(); @Column(name="sleep_hours") private BigDecimal sleepHours; @Column(name="sleep_quality") private Integer sleepQuality; private Integer energy,soreness,mood,stress; @Column(name="available_minutes") private Integer availableMinutes; @Column(name="resting_heart_rate") private Integer restingHeartRate; private Integer hrv,score; @Column(name="current_condition") private String currentCondition; private String recommendation; }

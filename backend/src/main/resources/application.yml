@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: fitnova-api
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+server:
+  port: ${PORT:8080}
+fitnova:
+  jwt-secret: ${JWT_SECRET}
+  cors-origin: ${CORS_ORIGIN:http://localhost:5173}
+  gemini-key: ${GEMINI_API_KEY:}
+  gemini-model: ${GEMINI_MODEL:gemini-flash-lite-latest}

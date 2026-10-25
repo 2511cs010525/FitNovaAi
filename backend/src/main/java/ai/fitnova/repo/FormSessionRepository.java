@@ -1,0 +1,1 @@
+package ai.fitnova.repo; import ai.fitnova.domain.FormSession; import org.springframework.data.jpa.repository.JpaRepository; import java.util.List; public interface FormSessionRepository extends JpaRepository<FormSession,Long>{List<FormSession> findTop30ByUserIdOrderByCreatedAtDesc(Long id);}

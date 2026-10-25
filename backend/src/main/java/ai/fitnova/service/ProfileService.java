@@ -1,0 +1,7 @@
+package ai.fitnova.service;
+import ai.fitnova.api.ApiDtos.*; import ai.fitnova.domain.*; import ai.fitnova.repo.ProfileRepository; import lombok.RequiredArgsConstructor; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.util.*;
+@Service @RequiredArgsConstructor public class ProfileService {private final ProfileRepository profiles;
+ @Transactional(readOnly=true) public ProfileView get(User u){return view(profiles.findByUserId(u.getId()).orElseThrow());}
+ @Transactional public ProfileView save(User u,ProfileRequest r){Profile p=profiles.findByUserId(u.getId()).orElseThrow();p.setAge(r.age());p.setHeightCm(r.heightCm());p.setWeightKg(r.weightKg());p.setGoal(r.goal());p.setExperience(r.experience());p.setLocation(r.location());p.setEquipment(r.equipment()==null?"":String.join(",",r.equipment()));p.setDiet(r.diet());p.setAllergies(r.allergies());p.setLimitations(r.limitations());p.setOnboardingComplete(true);return view(profiles.save(p));}
+ public ProfileView view(Profile p){return new ProfileView(p.getAge(),p.getHeightCm(),p.getWeightKg(),p.getGoal(),p.getExperience(),p.getLocation(),split(p.getEquipment()),p.getDiet(),p.getAllergies(),p.getLimitations(),p.isOnboardingComplete());}
+ private List<String> split(String value){return value==null||value.isBlank()?List.of():Arrays.stream(value.split(",")).map(String::trim).filter(x->!x.isBlank()).toList();}}
