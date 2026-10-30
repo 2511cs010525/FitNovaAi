@@ -1,101 +1,52 @@
 # FitNova AI
 
-FitNova is an adaptive personal-fitness application with a cinematic React/vinext frontend and a Java 21 Spring Boot API. Authenticated fitness records are owned by Spring Boot and persisted in MySQL; the browser never connects to the database or receives backend secrets.
+FitNova AI is a fitness web app with account signup, onboarding, readiness tracking, workouts, meals, progress, and optional Gemini-powered nutrition and coaching features.
 
-## Architecture
+**Live demo:** https://fitnova-ai-snowy.vercel.app/
 
-```text
-React + TypeScript (vinext)
-        │ REST / HTTPS + JWT
-Spring Boot controllers
-        │
-Service layer (auth, profile, readiness, workouts, activity)
-        │
-Spring Data JPA / Hibernate
-        │
-MySQL database: fitnova
-```
+## Technology
 
-Flyway owns the schema. H2 is used only by isolated automated tests. Readiness and progress calculations are deterministic Java code. Camera access is real, but form scoring stays disabled until a validated pose-estimation model and deterministic exercise rules are installed. Gemini-backed features stay unavailable unless the backend is given a valid key; no browser code calls Gemini.
+- React, TypeScript, and Vinext frontend
+- Java 21 and Spring Boot REST API
+- JWT authentication, Spring Data JPA, and Flyway migrations
+- PostgreSQL for the Vercel deployment; MySQL for local development
+- Gemini API for optional AI features
 
-## Requirements
+The browser calls the Spring Boot API; database credentials and the Gemini key stay on the server. The production deployment runs both services in one Docker container behind Nginx.
 
-- Node.js 22.13+
-- Java 21+
-- MySQL 8+
+## Run on a Windows computer
 
-## Database
+Install Node.js 22.13 or newer, Java 21 or newer, and MySQL 8 or newer. Create an empty MySQL database named `fitnova` and a user with access to it. From the project folder:
 
-Create a dedicated database and account:
+1. Copy `.env.example` to `.env.local`.
+2. Edit `.env.local`: set `DB_USER`, `DB_PASSWORD`, and a random `JWT_SECRET` of at least 32 characters. The example uses `SPRING_PROFILES_ACTIVE=mysql` and `DB_URL` for the local database. Add your own `GEMINI_API_KEY` only if you want the AI features.
+3. In PowerShell, run `npm install` followed by `npm run dev`.
+4. Open http://localhost:3000/ and sign up.
 
-```sql
-create database fitnova character set utf8mb4 collate utf8mb4_unicode_ci;
-create user 'fitnova'@'localhost' identified by 'choose-a-strong-password';
-grant all privileges on fitnova.* to 'fitnova'@'localhost';
-```
+The API runs on http://localhost:8080/. Flyway creates the tables automatically. Never upload `.env.local` or any real key or password.
 
-Flyway applies `backend/src/main/resources/db/migration` automatically. Hibernate uses `ddl-auto=validate` and does not create production tables.
+## Tests
 
-## Environment
+Run `npm run lint` and `npm run build` from the project folder. For backend tests, run `cd backend` and then `.\mvnw.cmd test` in PowerShell.
 
-Copy `.env.example` to a local, ignored environment file or configure the variables in your shell/deployment platform.
+## Cloud deployment
 
-Frontend:
+The included `Dockerfile` and `vercel.json` deploy the frontend and backend together on Vercel. Production uses a Neon PostgreSQL database and the Spring `postgres` profile. Configure `SPRING_PROFILES_ACTIVE=postgres`, `JWT_SECRET`, and `GEMINI_API_KEY` as Vercel environment variables. Connect Neon to the Vercel project so it supplies `PGHOST_UNPOOLED`, `PGDATABASE`, `PGUSER`, and `PGPASSWORD`. The PostgreSQL migrations live in `backend/src/main/resources/db/postgresql/`. The database starts empty; local MySQL records are not transferred by deployment.
 
-- `NEXT_PUBLIC_API_BASE_URL` — normally `http://localhost:8080/api`
+## Submit to the MRU CSE second-year repository
 
-Backend-only:
+Target repository: https://github.com/cse-department-projects/MRU-CSE-2nd-Year-Projects
 
-- `DB_URL`, `DB_USER`, `DB_PASSWORD`
-- `JWT_SECRET` — at least 32 random characters; mandatory outside the local MySQL profile
-- `CORS_ORIGIN` — comma-separated allowed frontend origins
-- `GEMINI_API_KEY` — optional until AI Kitchen/Coach is enabled
+1. Extract this ZIP on your computer. GitHub does not unpack a ZIP that you upload as a file.
+2. Open the target repository on GitHub and choose **Fork** while signed in to your GitHub account.
+3. In your fork, create a folder such as `FitNova-AI/`. Upload the extracted project files into that folder, keeping `backend/`, `app/`, `public/`, `deploy/`, `package.json`, and this README together. GitHub's web upload may be slow for this project; Git on your computer is another option.
+4. Check that `.env.local`, API keys, passwords, `node_modules/`, `backend/target/`, and `.vercel/` are absent.
+5. Commit the files in your fork, then choose **Contribute → Open pull request** to propose the addition to the department repository's `main` branch. Add your team members and project summary to the pull request description.
 
-Never prefix backend secrets with `NEXT_PUBLIC_`.
+The department repository currently lists no additional submission format in its README. Follow any instructions your instructor provides.
 
-## Run locally
+## Capability notes
 
-Copy `.env.example` to `.env.local` and fill in the local database settings. Then start the frontend and backend together from the repository root:
-
-```powershell
-npm install
-npm run dev
-```
-
-The startup command launches the Spring Boot API on `http://localhost:8080` and the FitNova site on `http://localhost:3000`. To run them separately instead:
-
-```powershell
-npm run dev:backend
-npm run dev:frontend
-```
-
-Open `http://localhost:3000`, create an account, complete onboarding, submit readiness, and generate a workout.
-
-## Production deployment
-
-FitNova is deployed on Railway as one public container: Nginx routes the website to the Vinext server and `/api` requests to Spring Boot. A managed Railway MySQL service stores application data.
-
-- Production site: `https://fitnova-production-c221.up.railway.app`
-- Health check: `https://fitnova-production-c221.up.railway.app/actuator/health`
-- Container definition: `Dockerfile`
-- Railway configuration: `railway.toml`
-
-The production service requires `DB_URL`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET`, and `SPRING_PROFILES_ACTIVE=mysql`. Railway supplies the database values through references to its MySQL service. Add `GEMINI_API_KEY` as a sealed Railway variable only when AI Kitchen and Ask FitNova should be enabled.
-
-## Validation
-
-```powershell
-npm run lint
-npm run build
-cd backend
-.\mvnw.cmd test
-```
-
-Backend tests run Flyway against an isolated H2 database in MySQL compatibility mode. Production must use managed MySQL, HTTPS, a strong `JWT_SECRET`, and exact CORS origins.
-
-## Current honest capability boundaries
-
-- Form Coach requests camera permission and renders the real camera feed. It does not invent pose landmarks, reps, or scores while a pose model is absent.
-- AI Kitchen and Ask FitNova do not simulate Gemini responses while the server integration/key is unavailable.
-- HRV and resting heart rate appear only when manually supplied; FitNova never claims to measure them.
-- Dashboard and progress screens show loading, empty, error, or real persisted values—never authenticated demo records.
+- Gemini features require a valid server-side API key.
+- Form Coach uses the camera, but automated pose scoring is not enabled without a validated model and exercise rules.
+- Readiness and progress use saved records; new accounts begin with empty data.
