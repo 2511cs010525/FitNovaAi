@@ -15,9 +15,9 @@ FROM eclipse-temurin:21-jdk AS backend-build
 WORKDIR /workspace
 COPY backend/.mvn .mvn
 COPY backend/mvnw backend/pom.xml ./
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -q
+RUN chmod +x mvnw
 COPY backend/src ./src
-RUN ./mvnw package -DskipTests -q
+RUN ./mvnw package -DskipTests || ./mvnw package -DskipTests
 
 FROM node:22-bookworm-slim AS runtime
 COPY --from=eclipse-temurin:21-jre /opt/java/openjdk /opt/java/openjdk
