@@ -1,0 +1,9 @@
+spring:
+  flyway:
+    locations: classpath:db/postgresql
+  datasource:
+    url: jdbc:postgresql://${PGHOST_UNPOOLED}:5432/${PGDATABASE}?sslmode=require
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
+    hikari:
+      maximum-pool-size: 5
